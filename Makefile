@@ -26,3 +26,7 @@ net:
 ## mysql: workspace container bash
 db-bash:
 	docker-compose exec sample-db bash
+
+init:
+	go get -u github.com/gin-gonic/gin
+	go get -u github.com/go-sql-driver/mysql
