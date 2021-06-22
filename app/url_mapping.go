@@ -1,7 +1,8 @@
 package app
 
-import "github.com/KaT0819/sample-go-gin-api/app/controllers/users"
+import "sample-go-gin-api/controllers/users"
 
 func mapUrls() {
-	router.POST("users", users.Create)
+	router.POST("/users", users.Create)
+	router.GET("/users/:user_id", users.Get)
 }
