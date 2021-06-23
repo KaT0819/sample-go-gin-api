@@ -84,8 +84,7 @@ func (user *User) Delete() *errors.RestErr {
 	}
 	defer stmt.Close()
 
-	_, deleteErr := stmt.Exec(user.Id)
-	if deleteErr != nil {
+	if _, err := stmt.Exec(user.Id); err != nil {
 		return errors.NewInternalServerError("database error")
 	}
 

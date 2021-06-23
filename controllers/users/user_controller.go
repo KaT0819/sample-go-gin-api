@@ -79,20 +79,9 @@ func Delete(c *gin.Context) {
 		c.JSON(err.Status, err)
 	}
 
-	var user users.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		restErr := errors.NewBadRequestError("invalid json body")
-		c.JSON(restErr.Status, restErr)
-		return
-	}
-
-	user.Id = userId
-
-	result, err := services.DeleteUser(user)
+	err := services.DeleteUser(userId)
 	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, result)
 }

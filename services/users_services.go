@@ -58,20 +58,13 @@ func UpdateUser(user users.User, isPertial bool) (*users.User, *errors.RestErr) 
 	return current, nil
 }
 
-func DeleteUser(user users.User) (*users.User, *errors.RestErr) {
-	current, err := GetUser(user.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	current.FirstName = user.FirstName
-	current.LastName = user.LastName
-	current.Email = user.Email
+func DeleteUser(userId int64) *errors.RestErr {
+	user := &users.User{Id: userId}
 
 	// delete
 	if err := user.Delete(); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &user, nil
+	return nil
 }
