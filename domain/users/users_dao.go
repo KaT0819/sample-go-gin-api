@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	queryInsertUser = "INSERT INTO users(first_name, last_name, email, password) VALUES (?, ?, ?, ?)"
-	queryGetUser    = "SELECT id, first_name, last_name, email FROM users WHERE id = ?"
-	queryUpdateUser = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?"
-	queryDeleteUser = "DELETE FROM users WHERE id = ?"
+	queryInsertUser   = "INSERT INTO users(first_name, last_name, email, password, status) VALUES (?, ?, ?, ?, ?)"
+	queryGetUser      = "SELECT id, first_name, last_name, email FROM users WHERE id = ?"
+	queryUpdateUser   = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE id = ?"
+	queryDeleteUser   = "DELETE FROM users WHERE id = ?"
+	queyrFindByStatus = "SELECT id, first_name, last_name, email, status FROM users WHERE status = ?"
 )
 
 func (user *User) Get() *errors.RestErr {
@@ -44,7 +45,7 @@ func (user *User) Save() *errors.RestErr {
 	}
 	defer stmt.Close()
 
-	result, saveErr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.Password)
+	result, saveErr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.Password, user.Status)
 	if saveErr != nil {
 		return errors.NewInternalServerError("database error")
 	}
@@ -89,4 +90,34 @@ func (user *User) Delete() *errors.RestErr {
 	}
 
 	return nil
+}
+
+func (user *User) FindByStatus(status string) ([]User, *errors.RestErr) {
+	stmt, err := users_db.Client.Prepare(queyrFindByStatus)
+	if err != nil {
+		return nil, errors.NewInternalServerError("database error")
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(status)
+	if err != nil {
+		return nil, errors.NewInternalServerError("database error")
+	}
+	defer rows.Close()
+
+	results := make([]User, 0)
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.Status); err != nil {
+			return nil, errors.NewInternalServerError("database error")
+		}
+		results = append(results, user)
+	}
+
+	if len(results) == 0 {
+		return nil, errors.NewInternalServerError(fmt.Sprintf("ステータスが一致するユーザが存在しませんでした。 %s", status))
+	}
+
+	return results, nil
+
 }

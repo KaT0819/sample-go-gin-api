@@ -68,3 +68,11 @@ func DeleteUser(userId int64) *errors.RestErr {
 
 	return nil
 }
+
+func SearchUser(status string) (users.Users, *errors.RestErr) {
+	fmt.Println("SearchUser start")
+
+	dao := &users.User{}
+
+	return dao.FindByStatus(status)
+}
